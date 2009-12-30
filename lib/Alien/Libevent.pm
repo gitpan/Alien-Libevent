@@ -3,7 +3,7 @@ package Alien::Libevent;
 use strict;
 use warnings;
 
-our $VERSION = '0.01000';
+our $VERSION = '0.01001';
 
 =head1 NAME
 
