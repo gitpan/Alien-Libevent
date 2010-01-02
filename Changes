@@ -1,5 +1,8 @@
 Revision history for Alien-Libevent
 
+0.01003  Sat Jan 01 2010
+         - Removed Devel::CheckLib based test
+
 0.01002  Sat Jan 01 2010
          - Added test using Devel::CheckLib
 
