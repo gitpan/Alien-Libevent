@@ -25,35 +25,49 @@ my $VERSION = do {
     require ExtUtils::MM_Unix;
     ExtUtils::MM_Unix->parse_version($DIST);
 };
+my $LIBEVENT_VERSION = '1.4.13';
 
 my $CCFLAGS = $ENV{CCFLAGS} || '-I/usr/local/include';
 my $LDFLAGS = $ENV{LDFLAGS} || '-L/usr/local/lib';
 
 eval { Devel::CheckLib::assert_lib( lib => "event", LIBS => $LDFLAGS ) };
 
+my $install_libevent = 1;
 if ( !$@ ) {
     print <<EOF;
 
-*** We've detected a previous installation of libevent ***
+*** We've detected an existing installation of libevent ***
+
+That existing installation of libevent may have been installed before by:
+
+  * your distributions packaging system
+  * previous installation of Alien::Libevent
+  * compiling/installing it manually from source
 
 Because Alien::Libevent may have been called to be installed from a dependency
 of another module, we want to make sure that you *really* want to install
-this version of Alien::Libevent (and therefore libevent).
+this version of libevent.
 
-If you answer "y", then We're going to install
-    libevent: $VERSION
+If you answer "y", then we're going to install
+    libevent:         $LIBEVENT_VERSION
+    Alient::Libevent: $VERSION
+
+If you answer "n", then we're going to install
+    Alient::Libevent: $VERSION
 
 This operation may OVERWRITE your previous installation, you've been warned!
 
 EOF
     my $yn = prompt( "Really install?", "n" );
     if ( $yn !~ /^y(?:es)?$/ ) {
-        exit 0;
+        $install_libevent = 0;
     }
 }
 
-extract( $PKG => $SRC );
-run_configure( libevent => $SRC );
+if ($install_libevent) {
+    extract( $PKG => $SRC );
+    run_configure( libevent => $SRC );
+}
 
 WriteMakefile(
     ABSTRACT           => 'Wrapper for installing libevent v1.4.13',
@@ -121,20 +135,22 @@ package MY;
 
 sub top_targets {
     my $inherited = shift->SUPER::top_targets(@_);
+    return $inherited unless $install_libevent;
     $inherited =~ s/^all :: /all :: libevent /;
     return $inherited;
 }
 
 sub constants {
     my $inherited = shift->SUPER::constants(@_);
-
+    return $inherited unless $install_libevent;
     $inherited .= "LIBEVENT_SRC=$SRC\n";
-
     return $inherited;
 }
 
 sub postamble {
-    my $make_str;
+    my $make_str = '';
+
+    return $make_str unless $install_libevent;
 
     $make_str = <<'MAKE_FRAG';
 

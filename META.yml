@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Alien-Libevent
-version:            0.01003
+version:            0.01004
 abstract:           Wrapper for installing libevent v1.4.13
 author:
     - Johannes Plunien <plu@cpan.org>
